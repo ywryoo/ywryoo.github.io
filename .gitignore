@@ -3,6 +3,9 @@
 vendor
 Gemfile.lock
 
+# Local Ruby environment
+.venv/
+
 # Jekyll cache
 .jekyll-cache
 .jekyll-metadata
