@@ -7,12 +7,10 @@ order: 1
 <div class="project-grid">
   <article class="project-card">
     <div class="project-eyebrow">GitHub Pages</div>
-    <h2>개인 기술 블로그</h2>
-    <p>Jekyll Chirpy 테마를 기반으로 글, 프로젝트, 회고를 정리하는 개인 블로그입니다. GitHub Actions로 빌드하고 GitHub Pages로 배포합니다.</p>
+    <h2>과거의 연구/개발흔적</h2>
+    <p>학부생 때의 개발기록이 남아있는 github link</p>
     <div class="project-tags">
-      <span>Jekyll</span>
-      <span>Chirpy</span>
-      <span>GitHub Pages</span>
+      <span>GitHub</span>
     </div>
     <a href="https://github.com/ywryoo/ywryoo.github.io">저장소 보기</a>
   </article>
