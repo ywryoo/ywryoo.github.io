@@ -34,7 +34,7 @@ twitter:
 social:
   # Change to your full name.
   # It will be displayed as the default author of the posts and the copyright owner in the Footer
-  name: Ryangwook Ryoo
+  name: ywryoo
   email: ryangwook@ryoo.kr
   fediverse_handle: # fill in your fediverse handle. E.g. "@username@domain.com"
   links:
@@ -61,7 +61,7 @@ analytics:
   google:
     id: G-PTQZM5WTD8
   goatcounter:
-    id: # fill in your GoatCounter ID
+    id: ywryoo
   umami:
     id: # fill in your Umami ID
     domain: # fill in your Umami domain
@@ -75,7 +75,7 @@ analytics:
 
 # Page views settings
 pageviews:
-  provider: # now only supports 'goatcounter'
+  provider: goatcounter
 
 # Prefer color scheme setting.
 #
