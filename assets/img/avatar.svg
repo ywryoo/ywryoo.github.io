@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">Ryangwook Ryoo avatar</title>
+  <desc id="desc">A geometric monogram avatar with the initials YR.</desc>
+  <defs>
+    <linearGradient id="bg" x1="64" y1="52" x2="448" y2="460" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0f766e"/>
+      <stop offset="0.52" stop-color="#164e63"/>
+      <stop offset="1" stop-color="#b45309"/>
+    </linearGradient>
+    <linearGradient id="stroke" x1="116" y1="96" x2="396" y2="416" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.92"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0.58"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="128" fill="url(#bg)"/>
+  <path d="M112 136h288v240H112z" fill="#071b1d" opacity="0.18"/>
+  <path d="M145 156h222c18.2 0 33 14.8 33 33v134c0 18.2-14.8 33-33 33H145c-18.2 0-33-14.8-33-33V189c0-18.2 14.8-33 33-33Z" fill="#ffffff" opacity="0.12"/>
+  <path d="M166 184l65 89v83h48v-84l66-88h-56l-34 49-34-49h-55Z" fill="#fff"/>
+  <path d="M303 356V184h78c40 0 66 22 66 57 0 23-12 41-33 50l42 65h-55l-35-57h-16v57h-47Zm47-97h27c14 0 23-7 23-18s-9-18-23-18h-27v36Z" fill="#fff"/>
+  <path d="M82 96c70-42 156-54 238-31 50 14 87 39 110 65" fill="none" stroke="url(#stroke)" stroke-width="18" stroke-linecap="round" opacity="0.42"/>
+</svg>

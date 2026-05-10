@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">Blog start preview</title>
+  <desc id="desc">Preview image for the first blog post.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1200" y2="630" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ecfeff"/>
+      <stop offset="0.52" stop-color="#f8fafc"/>
+      <stop offset="1" stop-color="#fffbeb"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect x="126" y="92" width="948" height="446" rx="32" fill="#ffffff" stroke="#d9e5e1"/>
+  <rect x="184" y="150" width="170" height="18" rx="9" fill="#0f766e"/>
+  <text x="184" y="257" fill="#111827" font-family="Arial, AppleGothic, sans-serif" font-size="70" font-weight="700">블로그를 시작합니다</text>
+  <text x="188" y="328" fill="#4b5563" font-family="Arial, AppleGothic, sans-serif" font-size="32">GitHub Pages와 Jekyll Chirpy로 여는 기록 공간</text>
+  <g transform="translate(184 395)">
+    <rect width="178" height="48" rx="24" fill="#0f766e" opacity="0.12"/>
+    <text x="28" y="32" fill="#0f766e" font-family="Arial, AppleGothic, sans-serif" font-size="22" font-weight="700">Jekyll</text>
+    <rect x="200" width="230" height="48" rx="24" fill="#b45309" opacity="0.12"/>
+    <text x="228" y="32" fill="#92400e" font-family="Arial, AppleGothic, sans-serif" font-size="22" font-weight="700">GitHub Pages</text>
+  </g>
+  <g transform="translate(774 156)">
+    <rect width="216" height="260" rx="22" fill="#0f172a"/>
+    <rect x="28" y="42" width="72" height="10" rx="5" fill="#5eead4"/>
+    <rect x="28" y="76" width="148" height="10" rx="5" fill="#e5e7eb"/>
+    <rect x="28" y="110" width="116" height="10" rx="5" fill="#fbbf24"/>
+    <rect x="28" y="162" width="160" height="10" rx="5" fill="#e5e7eb"/>
+    <rect x="28" y="196" width="104" height="10" rx="5" fill="#5eead4"/>
+  </g>
+</svg>

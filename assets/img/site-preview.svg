@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">Ryangwook Ryoo blog preview</title>
+  <desc id="desc">Open graph preview image for a Korean developer blog.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1200" y2="630" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0f766e"/>
+      <stop offset="0.58" stop-color="#1f2937"/>
+      <stop offset="1" stop-color="#b45309"/>
+    </linearGradient>
+    <linearGradient id="panel" x1="190" y1="95" x2="1040" y2="540" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.18"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0.08"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <path d="M0 492c165-72 312-84 489-35 189 52 374 36 711-80v253H0z" fill="#071b1d" opacity="0.26"/>
+  <rect x="92" y="80" width="1016" height="470" rx="36" fill="url(#panel)" stroke="#ffffff" stroke-opacity="0.22"/>
+  <rect x="152" y="142" width="190" height="18" rx="9" fill="#fbbf24"/>
+  <rect x="152" y="192" width="124" height="124" rx="34" fill="#ffffff" opacity="0.14"/>
+  <text x="182" y="278" fill="#ffffff" font-family="Arial, AppleGothic, sans-serif" font-size="64" font-weight="700">YR</text>
+  <text x="378" y="248" fill="#ffffff" font-family="Arial, AppleGothic, sans-serif" font-size="76" font-weight="700">Ryangwook Ryoo</text>
+  <text x="382" y="317" fill="#d9f99d" font-family="Arial, AppleGothic, sans-serif" font-size="34" font-weight="600">기록을 코드로 다듬는 개발자</text>
+  <text x="152" y="420" fill="#e5e7eb" font-family="Arial, AppleGothic, sans-serif" font-size="30">개발하며 배운 것, 프로젝트, 생각을 차곡차곡 정리합니다.</text>
+  <g transform="translate(842 388)">
+    <rect width="184" height="92" rx="18" fill="#061f22" opacity="0.55"/>
+    <circle cx="33" cy="30" r="7" fill="#f87171"/>
+    <circle cx="58" cy="30" r="7" fill="#fbbf24"/>
+    <circle cx="83" cy="30" r="7" fill="#34d399"/>
+    <rect x="28" y="56" width="72" height="10" rx="5" fill="#67e8f9"/>
+    <rect x="112" y="56" width="44" height="10" rx="5" fill="#fbbf24"/>
+  </g>
+</svg>
