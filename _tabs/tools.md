@@ -11,10 +11,11 @@ permalink: /tools/
   <a class="project-card muted" href="/tools/diff/">
     <div class="project-eyebrow">Tool</div>
     <h2>문서 비교</h2>
-    <p>문서 내용을 비교하고 차이를 확인하는 도구입니다.</p>
+    <p>행, 단어, 글자 단위로 두 텍스트의 차이를 확인하는 도구입니다.</p>
     <div class="project-tags">
       <span>Document</span>
       <span>Compare</span>
+      <span>Text</span>
     </div>
   </a>
 </div>
