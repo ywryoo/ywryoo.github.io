@@ -30,7 +30,7 @@ permalink: /tools/diff/
       <select id="compareMode">
         <option value="line">행 단위</option>
         <option value="word">단어 단위</option>
-        <option value="char">글자 단위</option>
+        <option value="char" selected>글자 단위</option>
       </select>
     </label>
 
@@ -278,44 +278,22 @@ permalink: /tools/diff/
   line-height: 1.5;
 }
 
-.diff-equal {
-  background: transparent;
-}
-
-.diff-insert {
-  background: rgba(16, 185, 129, 0.12);
-  color: #047857;
-}
-
-.diff-delete {
+.diff-line-row.diff-delete .diff-line-left,
+.diff-line-row.diff-replace .diff-line-left {
   background: rgba(239, 68, 68, 0.12);
-  color: #991b1b;
 }
 
-.diff-replace {
-  background: rgba(245, 158, 11, 0.12);
-  color: #92400e;
+.diff-line-row.diff-insert .diff-line-text:not(.diff-line-left),
+.diff-line-row.diff-replace .diff-line-text:not(.diff-line-left) {
+  background: rgba(16, 185, 129, 0.12);
 }
 
-.diff-inline-columns {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1rem;
-}
-
-.diff-inline-panel {
+.diff-track-panel {
   min-height: 8rem;
   border: 1px solid var(--main-border-color);
   border-radius: 8px;
   background: var(--main-bg);
   padding: 0.85rem;
-}
-
-.diff-inline-panel h3 {
-  margin: 0 0 0.75rem;
-  color: var(--text-muted-color);
-  font-size: 0.9rem;
-  font-weight: 700;
 }
 
 .diff-inline-body {
@@ -327,29 +305,20 @@ permalink: /tools/diff/
 
 .diff-token {
   border-radius: 6px;
-  padding: 0.08rem 0.2rem;
 }
 
 .diff-token.inserted {
-  background: rgba(16, 185, 129, 0.18);
+  background: rgba(16, 185, 129, 0.22);
   color: #065f46;
+  padding: 0.08rem 0.18rem;
 }
 
 .diff-token.deleted {
-  background: rgba(239, 68, 68, 0.18);
+  background: rgba(239, 68, 68, 0.22);
   color: #831010;
-}
-
-html[data-mode='dark'] .diff-insert {
-  color: #6ee7b7;
-}
-
-html[data-mode='dark'] .diff-delete {
-  color: #fca5a5;
-}
-
-html[data-mode='dark'] .diff-replace {
-  color: #fcd34d;
+  padding: 0.08rem 0.18rem;
+  text-decoration: line-through;
+  text-decoration-thickness: 0.1em;
 }
 
 html[data-mode='dark'] .diff-token.inserted {
@@ -361,18 +330,6 @@ html[data-mode='dark'] .diff-token.deleted {
 }
 
 @media (prefers-color-scheme: dark) {
-  html:not([data-mode]) .diff-insert {
-    color: #6ee7b7;
-  }
-
-  html:not([data-mode]) .diff-delete {
-    color: #fca5a5;
-  }
-
-  html:not([data-mode]) .diff-replace {
-    color: #fcd34d;
-  }
-
   html:not([data-mode]) .diff-token.inserted {
     color: #a7f3d0;
   }
@@ -383,8 +340,7 @@ html[data-mode='dark'] .diff-token.deleted {
 }
 
 @media (max-width: 768px) {
-  .diff-columns,
-  .diff-inline-columns {
+  .diff-columns {
     grid-template-columns: 1fr;
   }
 
@@ -412,6 +368,9 @@ const modeLabels = {
   word: '단어',
   char: '글자'
 };
+const COPY_BODY_STYLE = 'font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; white-space: pre-wrap; line-height: 1.6;';
+const COPY_INSERT_STYLE = 'background-color: #dcfce7; color: #166534; text-decoration: none;';
+const COPY_DELETE_STYLE = 'background-color: #fee2e2; color: #991b1b; text-decoration: line-through;';
 
 let lastDiff = null;
 
@@ -452,7 +411,7 @@ function updateStats() {
 }
 
 function normalizeToken(text, options) {
-  let value = text;
+  let value = text.normalize('NFC');
 
   if (options.ignoreWhitespace) {
     value = value.replace(/\s+/g, '');
@@ -649,11 +608,30 @@ function appendText(parent, text) {
   parent.appendChild(document.createTextNode(text));
 }
 
-function createLineCell(className, text) {
+function createDiffToken(text, tokenClass) {
+  const token = document.createElement('span');
+  token.className = `diff-token ${tokenClass}`;
+  appendText(token, text);
+  return token;
+}
+
+function createLineCell(className, text, tokenClass = '') {
   const cell = document.createElement('div');
   cell.className = className;
-  cell.textContent = text;
+
+  if (tokenClass && text) {
+    cell.appendChild(createDiffToken(text, tokenClass));
+  } else {
+    cell.textContent = text;
+  }
+
   return cell;
+}
+
+function getVisibleParts(parts, options) {
+  return options.showOnlyChanges
+    ? parts.filter(part => part.type !== 'equal')
+    : parts;
 }
 
 function renderLineDiff(parts, options) {
@@ -677,46 +655,20 @@ function renderLineDiff(parts, options) {
   rows.forEach(row => {
     const line = document.createElement('div');
     line.className = `diff-line-row diff-${row.type}`;
+    const sourceTokenClass = row.type === 'delete' || row.type === 'replace' ? 'deleted' : '';
+    const targetTokenClass = row.type === 'insert' || row.type === 'replace' ? 'inserted' : '';
     line.appendChild(createLineCell('diff-line-no', row.sourceLine));
-    line.appendChild(createLineCell('diff-line-text diff-line-left', row.sourceText));
+    line.appendChild(createLineCell('diff-line-text diff-line-left', row.sourceText, sourceTokenClass));
     line.appendChild(createLineCell('diff-line-no', row.targetLine));
-    line.appendChild(createLineCell('diff-line-text', row.targetText));
+    line.appendChild(createLineCell('diff-line-text', row.targetText, targetTokenClass));
     grid.appendChild(line);
   });
 
   elements.resultArea.appendChild(grid);
 }
 
-function renderInlinePane(title, parts, keepType, tokenClass) {
-  const pane = document.createElement('section');
-  pane.className = 'diff-inline-panel';
-
-  const heading = document.createElement('h3');
-  heading.textContent = title;
-  pane.appendChild(heading);
-
-  const body = document.createElement('div');
-  body.className = 'diff-inline-body';
-
-  parts.forEach(part => {
-    if (part.type !== 'equal' && part.type !== keepType) {
-      return;
-    }
-
-    const token = document.createElement('span');
-    token.className = part.type === keepType ? `diff-token ${tokenClass}` : 'diff-token';
-    appendText(token, part.text);
-    body.appendChild(token);
-  });
-
-  pane.appendChild(body);
-  return pane;
-}
-
 function renderInlineDiff(parts, options) {
-  const visibleParts = options.showOnlyChanges
-    ? parts.filter(part => part.type !== 'equal')
-    : parts;
+  const visibleParts = getVisibleParts(mergeParts(parts), options);
 
   elements.resultArea.innerHTML = '';
 
@@ -725,11 +677,23 @@ function renderInlineDiff(parts, options) {
     return;
   }
 
-  const columns = document.createElement('div');
-  columns.className = 'diff-inline-columns';
-  columns.appendChild(renderInlinePane('원본 문서', visibleParts, 'delete', 'deleted'));
-  columns.appendChild(renderInlinePane('비교 문서', visibleParts, 'insert', 'inserted'));
-  elements.resultArea.appendChild(columns);
+  const panel = document.createElement('section');
+  panel.className = 'diff-track-panel';
+
+  const body = document.createElement('div');
+  body.className = 'diff-inline-body';
+
+  visibleParts.forEach(part => {
+    if (part.type === 'equal') {
+      appendText(body, part.text);
+      return;
+    }
+
+    body.appendChild(createDiffToken(part.text, part.type === 'insert' ? 'inserted' : 'deleted'));
+  });
+
+  panel.appendChild(body);
+  elements.resultArea.appendChild(panel);
 }
 
 function renderDiff(parts, options) {
@@ -813,8 +777,8 @@ function swapTexts() {
   compareTexts();
 }
 
-function formatLineResult(parts) {
-  return buildAlignedRows(parts).flatMap(row => {
+function formatLineResult(parts, options) {
+  return buildAlignedRows(parts).filter(row => !options.showOnlyChanges || row.type !== 'equal').flatMap(row => {
     if (row.type === 'equal') {
       return [`  ${row.sourceText}`];
     }
@@ -831,8 +795,8 @@ function formatLineResult(parts) {
   }).join('\n');
 }
 
-function formatInlineResult(parts) {
-  return mergeParts(parts)
+function formatInlineResult(parts, options) {
+  return getVisibleParts(mergeParts(parts), options)
     .filter(part => part.type !== 'equal' || part.text.trim())
     .map(part => {
       const prefix = part.type === 'insert' ? '+' : part.type === 'delete' ? '-' : ' ';
@@ -841,19 +805,106 @@ function formatInlineResult(parts) {
     .join('\n');
 }
 
+function escapeHtml(text) {
+  return String(text).replace(/[&<>"']/g, character => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;'
+  })[character]);
+}
+
+function formatPartHtml(part) {
+  const text = escapeHtml(part.text);
+
+  if (part.type === 'insert') {
+    return `<ins style="${COPY_INSERT_STYLE}">${text}</ins>`;
+  }
+
+  if (part.type === 'delete') {
+    return `<del style="${COPY_DELETE_STYLE}">${text}</del>`;
+  }
+
+  return text;
+}
+
+function formatLineHtml(parts, options) {
+  return buildAlignedRows(parts).filter(row => !options.showOnlyChanges || row.type !== 'equal').map(row => {
+    if (row.type === 'equal') {
+      return escapeHtml(row.sourceText);
+    }
+
+    if (row.type === 'delete') {
+      return `<del style="${COPY_DELETE_STYLE}">${escapeHtml(row.sourceText)}</del>`;
+    }
+
+    if (row.type === 'insert') {
+      return `<ins style="${COPY_INSERT_STYLE}">${escapeHtml(row.targetText)}</ins>`;
+    }
+
+    return `<del style="${COPY_DELETE_STYLE}">${escapeHtml(row.sourceText)}</del><br><ins style="${COPY_INSERT_STYLE}">${escapeHtml(row.targetText)}</ins>`;
+  }).join('<br>');
+}
+
+function formatInlineHtml(parts, options) {
+  return getVisibleParts(mergeParts(parts), options).map(formatPartHtml).join('');
+}
+
 function formatResultForCopy() {
   if (!lastDiff) {
     return '';
   }
 
   if (lastDiff.options.mode === 'line') {
-    return formatLineResult(lastDiff.parts);
+    return formatLineResult(lastDiff.parts, lastDiff.options);
   }
 
-  return formatInlineResult(lastDiff.parts);
+  return formatInlineResult(lastDiff.parts, lastDiff.options);
 }
 
-function fallbackCopy(text) {
+function formatHtmlFragmentForCopy() {
+  if (!lastDiff) {
+    return '';
+  }
+
+  if (lastDiff.options.mode === 'line') {
+    return formatLineHtml(lastDiff.parts, lastDiff.options);
+  }
+
+  return formatInlineHtml(lastDiff.parts, lastDiff.options);
+}
+
+function wrapHtmlForCopy(htmlFragment) {
+  return `<!doctype html><html><head><meta charset="utf-8"></head><body><div style="${COPY_BODY_STYLE}">${htmlFragment}</div></body></html>`;
+}
+
+function fallbackCopy(text, htmlFragment = '') {
+  if (htmlFragment) {
+    const container = document.createElement('div');
+    container.setAttribute('contenteditable', 'true');
+    container.style.position = 'fixed';
+    container.style.top = '-1000px';
+    container.style.left = '-1000px';
+    container.innerHTML = `<div style="${COPY_BODY_STYLE}">${htmlFragment}</div>`;
+    document.body.appendChild(container);
+
+    const range = document.createRange();
+    range.selectNodeContents(container);
+
+    const selection = window.getSelection();
+    selection.removeAllRanges();
+    selection.addRange(range);
+
+    const copied = document.execCommand('copy');
+    selection.removeAllRanges();
+    document.body.removeChild(container);
+
+    if (copied) {
+      return;
+    }
+  }
+
   const textarea = document.createElement('textarea');
   textarea.value = text;
   textarea.setAttribute('readonly', '');
@@ -865,21 +916,44 @@ function fallbackCopy(text) {
   document.body.removeChild(textarea);
 }
 
+function markCopied() {
+  elements.copyStatus.textContent = '복사됨';
+}
+
 function copyResult() {
   const textContent = formatResultForCopy();
+  const htmlFragment = formatHtmlFragmentForCopy();
 
-  if (!textContent) {
+  if (!textContent && !htmlFragment) {
     return;
   }
 
-  if (navigator.clipboard && window.isSecureContext) {
-    navigator.clipboard.writeText(textContent).then(() => {
-      elements.copyStatus.textContent = '복사됨';
+  if (navigator.clipboard && window.isSecureContext && window.ClipboardItem && htmlFragment) {
+    const htmlContent = wrapHtmlForCopy(htmlFragment);
+    const clipboardItem = new ClipboardItem({
+      'text/html': new Blob([htmlContent], { type: 'text/html' }),
+      'text/plain': new Blob([textContent], { type: 'text/plain' })
     });
+
+    navigator.clipboard.write([clipboardItem]).then(markCopied).catch(() => {
+      fallbackCopy(textContent, htmlFragment);
+      markCopied();
+    });
+  } else if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(textContent).then(markCopied);
   } else {
-    fallbackCopy(textContent);
-    elements.copyStatus.textContent = '복사됨';
+    fallbackCopy(textContent, htmlFragment);
+    markCopied();
   }
+}
+
+function handleTextAreaKeydown(event) {
+  if (event.key !== 'Enter' || event.shiftKey || event.isComposing || event.keyCode === 229) {
+    return;
+  }
+
+  event.preventDefault();
+  elements.compareBtn.click();
 }
 
 function compareIfReady() {
@@ -890,6 +964,8 @@ function compareIfReady() {
 
 elements.sourceText.addEventListener('input', updateStats);
 elements.targetText.addEventListener('input', updateStats);
+elements.sourceText.addEventListener('keydown', handleTextAreaKeydown);
+elements.targetText.addEventListener('keydown', handleTextAreaKeydown);
 elements.compareMode.addEventListener('change', compareIfReady);
 elements.ignoreWhitespace.addEventListener('change', compareIfReady);
 elements.ignoreCase.addEventListener('change', compareIfReady);
