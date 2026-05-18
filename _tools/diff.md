@@ -321,6 +321,23 @@ permalink: /tools/diff/
   text-decoration-thickness: 0.1em;
 }
 
+.diff-replace-group {
+  display: inline;
+  border-radius: 6px;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+.diff-replace-group .diff-token.deleted {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.diff-replace-group .diff-token.inserted {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
 html[data-mode='dark'] .diff-token.inserted {
   color: #a7f3d0;
 }
@@ -541,6 +558,55 @@ function mergeParts(parts) {
   }, []);
 }
 
+function groupInlineParts(parts) {
+  const groups = [];
+  const mergedParts = mergeParts(parts);
+  let index = 0;
+
+  while (index < mergedParts.length) {
+    const part = mergedParts[index];
+
+    if (part.type === 'equal') {
+      groups.push({ ...part });
+      index += 1;
+      continue;
+    }
+
+    let deletedText = '';
+    let insertedText = '';
+
+    while (index < mergedParts.length && mergedParts[index].type !== 'equal') {
+      if (mergedParts[index].type === 'delete') {
+        deletedText += mergedParts[index].text;
+      } else {
+        insertedText += mergedParts[index].text;
+      }
+
+      index += 1;
+    }
+
+    if (deletedText && insertedText) {
+      groups.push({
+        type: 'replace',
+        deletedText,
+        insertedText
+      });
+    } else if (deletedText) {
+      groups.push({
+        type: 'delete',
+        text: deletedText
+      });
+    } else if (insertedText) {
+      groups.push({
+        type: 'insert',
+        text: insertedText
+      });
+    }
+  }
+
+  return groups;
+}
+
 function buildAlignedRows(parts) {
   const rows = [];
   let sourceLine = 1;
@@ -615,6 +681,14 @@ function createDiffToken(text, tokenClass) {
   return token;
 }
 
+function createReplaceToken(deletedText, insertedText) {
+  const group = document.createElement('span');
+  group.className = 'diff-replace-group';
+  group.appendChild(createDiffToken(deletedText, 'deleted'));
+  group.appendChild(createDiffToken(insertedText, 'inserted'));
+  return group;
+}
+
 function createLineCell(className, text, tokenClass = '') {
   const cell = document.createElement('div');
   cell.className = className;
@@ -628,10 +702,12 @@ function createLineCell(className, text, tokenClass = '') {
   return cell;
 }
 
-function getVisibleParts(parts, options) {
+function getVisibleInlineGroups(parts, options) {
+  const groups = groupInlineParts(parts);
+
   return options.showOnlyChanges
-    ? parts.filter(part => part.type !== 'equal')
-    : parts;
+    ? groups.filter(group => group.type !== 'equal')
+    : groups;
 }
 
 function renderLineDiff(parts, options) {
@@ -668,11 +744,11 @@ function renderLineDiff(parts, options) {
 }
 
 function renderInlineDiff(parts, options) {
-  const visibleParts = getVisibleParts(mergeParts(parts), options);
+  const visibleGroups = getVisibleInlineGroups(parts, options);
 
   elements.resultArea.innerHTML = '';
 
-  if (!visibleParts.length) {
+  if (!visibleGroups.length) {
     setEmptyResult('변경된 내용이 없습니다.');
     return;
   }
@@ -683,13 +759,18 @@ function renderInlineDiff(parts, options) {
   const body = document.createElement('div');
   body.className = 'diff-inline-body';
 
-  visibleParts.forEach(part => {
-    if (part.type === 'equal') {
-      appendText(body, part.text);
+  visibleGroups.forEach(group => {
+    if (group.type === 'equal') {
+      appendText(body, group.text);
       return;
     }
 
-    body.appendChild(createDiffToken(part.text, part.type === 'insert' ? 'inserted' : 'deleted'));
+    if (group.type === 'replace') {
+      body.appendChild(createReplaceToken(group.deletedText, group.insertedText));
+      return;
+    }
+
+    body.appendChild(createDiffToken(group.text, group.type === 'insert' ? 'inserted' : 'deleted'));
   });
 
   panel.appendChild(body);
@@ -796,11 +877,15 @@ function formatLineResult(parts, options) {
 }
 
 function formatInlineResult(parts, options) {
-  return getVisibleParts(mergeParts(parts), options)
-    .filter(part => part.type !== 'equal' || part.text.trim())
-    .map(part => {
-      const prefix = part.type === 'insert' ? '+' : part.type === 'delete' ? '-' : ' ';
-      return `${prefix} ${part.text}`;
+  return getVisibleInlineGroups(parts, options)
+    .filter(group => group.type !== 'equal' || group.text.trim())
+    .flatMap(group => {
+      if (group.type === 'replace') {
+        return [`- ${group.deletedText}`, `+ ${group.insertedText}`];
+      }
+
+      const prefix = group.type === 'insert' ? '+' : group.type === 'delete' ? '-' : ' ';
+      return [`${prefix} ${group.text}`];
     })
     .join('\n');
 }
@@ -829,6 +914,14 @@ function formatPartHtml(part) {
   return text;
 }
 
+function formatInlineGroupHtml(group) {
+  if (group.type === 'replace') {
+    return `<span>${formatPartHtml({ type: 'delete', text: group.deletedText })}${formatPartHtml({ type: 'insert', text: group.insertedText })}</span>`;
+  }
+
+  return formatPartHtml(group);
+}
+
 function formatLineHtml(parts, options) {
   return buildAlignedRows(parts).filter(row => !options.showOnlyChanges || row.type !== 'equal').map(row => {
     if (row.type === 'equal') {
@@ -848,7 +941,7 @@ function formatLineHtml(parts, options) {
 }
 
 function formatInlineHtml(parts, options) {
-  return getVisibleParts(mergeParts(parts), options).map(formatPartHtml).join('');
+  return getVisibleInlineGroups(parts, options).map(formatInlineGroupHtml).join('');
 }
 
 function formatResultForCopy() {
