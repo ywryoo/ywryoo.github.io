@@ -1,7 +1,6 @@
 # Bundler cache
 .bundle
 vendor
-Gemfile.lock
 
 # Local Ruby environment
 .venv/
@@ -30,6 +29,12 @@ AGENT.md
 AGENTS.md
 _sass/vendors
 assets/js/dist
+
+# OpenClaw agent workspace metadata
+.openclaw-agent/
+IDENTITY.md
+SOUL.md
+USER.md
 
 #MacOS
 .DS_Store
